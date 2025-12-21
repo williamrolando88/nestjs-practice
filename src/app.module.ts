@@ -13,7 +13,7 @@ import { ProductsModule } from './products/products.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      logging: true,
+      logging: false,
       synchronize: true,
       autoLoadEntities: true,
     }),
