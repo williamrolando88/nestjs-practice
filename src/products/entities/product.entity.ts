@@ -1,7 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Product {
+export class Product extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -14,8 +14,8 @@ export class Product {
   @Column('text', { nullable: true })
   description?: string;
 
-  @Column('text', { unique: true, nullable: true })
-  slug?: string;
+  @Column('text', { unique: true })
+  slug: string;
 
   @Column('int', { default: 0 })
   stock: number;
