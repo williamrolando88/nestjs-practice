@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
@@ -46,11 +46,11 @@ export class ProductsService {
     return `This action removes a #${id} product`;
   }
 
-  handleDBExceptions(error: unknown) {
-    if (error instanceof QueryFailedError) {
-      if (error.driverError?.code === '23505') {
-        throw new BadRequestException(error.driverError.detail);
-      }
+  handleDBExceptions(error: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (error?.driverError?.code === '23505') {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      throw new BadRequestException(error?.driverError?.detail);
     }
 
     this.logger.error(error);
