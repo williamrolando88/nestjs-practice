@@ -1,4 +1,11 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { snakeCase } from 'lodash';
+import {
+  BaseEntity,
+  BeforeInsert,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Product extends BaseEntity {
@@ -25,4 +32,12 @@ export class Product extends BaseEntity {
 
   @Column('text')
   gender: string;
+
+  @BeforeInsert()
+  generateSlug() {
+    if (!this.slug) {
+      this.slug = this.title;
+    }
+    this.slug = snakeCase(this.slug);
+  }
 }
