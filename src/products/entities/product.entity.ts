@@ -2,6 +2,7 @@ import { snakeCase } from 'lodash';
 import {
   BaseEntity,
   BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   PrimaryGeneratedColumn,
@@ -38,6 +39,11 @@ export class Product extends BaseEntity {
     if (!this.slug) {
       this.slug = this.title;
     }
+    this.slug = snakeCase(this.slug);
+  }
+
+  @BeforeUpdate()
+  updateSlug() {
     this.slug = snakeCase(this.slug);
   }
 }
