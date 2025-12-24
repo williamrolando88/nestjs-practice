@@ -34,6 +34,9 @@ export class Product extends BaseEntity {
   @Column('text')
   gender: string;
 
+  @Column('text', { array: true, default: [] })
+  tags: string[];
+
   @BeforeInsert()
   generateSlug() {
     if (!this.slug) {
