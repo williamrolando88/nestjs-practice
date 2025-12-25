@@ -120,6 +120,18 @@ export class ProductsService {
     await this.productRepository.remove(product);
   }
 
+  clearProductsTable() {
+    if (process.env.NODE_ENV === 'production') {
+      throw new BadRequestException('Operation not allowed in production');
+    }
+
+    return this.productRepository
+      .createQueryBuilder()
+      .delete()
+      .where({})
+      .execute();
+  }
+
   private async findOne(term: string) {
     let product: Product | null = null;
 
