@@ -28,7 +28,7 @@ export class AuthService {
       await this.userRepository.save(user);
 
       delete (user as Partial<User>).password;
-      return { ...user, token: this.getJwtToken({ email: user.email }) };
+      return { ...user, token: this.getJwtToken(user) };
     } catch (error) {
       onSaveDBError(error, this.logger);
     }
@@ -37,7 +37,7 @@ export class AuthService {
   async logIn(loginUserDto: LoginUserDto) {
     const user = await this.userRepository.findOne({
       where: { email: loginUserDto.email },
-      select: { password: true, email: true },
+      select: { password: true, email: true, id: true },
     });
 
     if (!user) {
@@ -52,10 +52,11 @@ export class AuthService {
 
     delete (user as Partial<User>).password;
 
-    return { ...user, token: this.getJwtToken({ email: user.email }) };
+    return { ...user, token: this.getJwtToken(user) };
   }
 
-  private getJwtToken(payload: JwtPayload) {
+  private getJwtToken(user: User) {
+    const payload: JwtPayload = { id: user.id };
     const token = this.jwtService.sign(payload);
     return token;
   }
