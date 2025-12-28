@@ -1,4 +1,5 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compareSync, hashSync } from 'bcrypt';
 import { onSaveDBError } from 'src/common/helpers/db-exception.helper';
@@ -6,6 +7,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { User } from './entities/user.entity';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +16,7 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
@@ -25,7 +28,7 @@ export class AuthService {
       await this.userRepository.save(user);
 
       delete (user as Partial<User>).password;
-      return user;
+      return { ...user, token: this.getJwtToken({ email: user.email }) };
     } catch (error) {
       onSaveDBError(error, this.logger);
     }
@@ -49,7 +52,11 @@ export class AuthService {
 
     delete (user as Partial<User>).password;
 
-    // TODO: Generate and return JWT
-    return user;
+    return { ...user, token: this.getJwtToken({ email: user.email }) };
+  }
+
+  private getJwtToken(payload: JwtPayload) {
+    const token = this.jwtService.sign(payload);
+    return token;
   }
 }
