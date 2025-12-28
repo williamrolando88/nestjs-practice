@@ -1,12 +1,12 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { handleDBExceptions } from 'src/common/helpers';
 import { DataSource, Repository } from 'typeorm';
 import { validate as isUUID } from 'uuid';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -41,7 +41,7 @@ export class ProductsService {
       await this.productRepository.save(product);
       return product;
     } catch (error) {
-      this.handleDBExceptions(error);
+      handleDBExceptions(error, this.logger);
     }
   }
 
@@ -105,7 +105,7 @@ export class ProductsService {
       return product;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      this.handleDBExceptions(error);
+      handleDBExceptions(error, this.logger);
     } finally {
       await queryRunner.release();
     }
@@ -153,19 +153,5 @@ export class ProductsService {
     }
 
     return product;
-  }
-
-  private handleDBExceptions(error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (error?.driverError?.code === '23505') {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      throw new BadRequestException(error?.driverError?.detail);
-    }
-
-    this.logger.error(error);
-
-    throw new InternalServerErrorException(
-      'Unexpected error, check server logs',
-    );
   }
 }
